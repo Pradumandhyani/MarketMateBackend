@@ -8,6 +8,9 @@ const productRoutes = require("./routes/products");
 const orderRoutes = require("./routes/orders");
 
 const app = express();
+const path = require("path");
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(cors());
 app.use(express.json());
@@ -15,6 +18,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB connected"))
