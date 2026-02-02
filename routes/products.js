@@ -1,37 +1,40 @@
-const express = require("express");
-const router = express.Router();
-const Product = require("../models/Product");
-const authMiddleware = require("../middleware/authMiddleware");
-const upload = require("../middleware/upload");
 
-// ADD PRODUCT WITH IMAGE
+const Product = require("../models/Product.js");
+const upload =require("../middleware/upload.js");
+const auth = require("../middleware/authMiddleware.js");
+const express = require("express");
+
+const router = express.Router();
+
+// add product
 router.post(
   "/",
-  authMiddleware,
-  upload.single("image"),
+  auth,
+  upload.array("images", 5), // 👈 max 5 images
   async (req, res) => {
     try {
-      const { name, description, price } = req.body;
+      const imagePaths = req.files.map(file => file.path);
 
-      const product = await Product.create({
-        name,
-        description,
-        price,
-        image: req.file ? `/uploads/products/${req.file.filename}` : null,
-        owner: req.user.id
+      const product = new Product({
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        images: imagePaths,
+        user: req.user.id
       });
 
-      res.status(201).json(product);
+      await product.save();
+      res.json(product);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
   }
 );
 
-// GET ALL PRODUCTS
+// get products
 router.get("/", async (req, res) => {
-  const products = await Product.find().populate("owner", "name email");
+  const products = await Product.find();
   res.json(products);
 });
 
-module.exports = router;
+module.exports= router;
