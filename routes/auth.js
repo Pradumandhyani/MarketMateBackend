@@ -5,11 +5,14 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-/* REGISTER */
 router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, userType } = req.body;
 
   try {
+    if (!userType) {
+      return res.status(400).json({ message: "User type is required" });
+    }
+
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: "User already exists" });
@@ -20,7 +23,8 @@ router.post("/register", async (req, res) => {
     user = new User({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      userType
     });
 
     await user.save();

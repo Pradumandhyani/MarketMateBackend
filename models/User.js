@@ -13,6 +13,11 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  userType: {
+    type: String,
+    enum: ["client", "shopkeeper"],
+    required: true
   }
 });
 
